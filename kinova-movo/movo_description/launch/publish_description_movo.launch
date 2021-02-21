@@ -1,0 +1,12 @@
+<launch>
+
+	<include file="$(find file_server)/launch/ros_sharp_communication.launch">
+		<arg name="port" value="9090" />
+	</include>
+
+	<arg name="urdf_file" default="$(find xacro)/xacro.py '$(find movo_description)/urdf/movo.urdf.xacro'" />
+	
+	<param name="robot/name" value="Movo" />
+	<param name="robot_description" command="$(arg urdf_file)" />
+
+</launch>
