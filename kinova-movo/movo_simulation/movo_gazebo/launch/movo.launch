@@ -49,6 +49,7 @@
 
     <include file="$(find movo_bringup)/launch/teleop/movo_teleop.launch">
         <arg name="sim" value="true"/>
+        <arg name="is_base_ctrl_only" value="($optenv IS_BASE_CTRL_ONLY)"/>
     </include>
     
     <node pkg="movo_gazebo" name="sim_odometry" type="sim_odometry" output="screen"/>

@@ -26,7 +26,8 @@ export MOVO_USE_LSM_TO_CORRECT_ODOMETRY=true
 # This will run the full system tele-op node (ie can control all the joints in the system) it is not
 # collision aware and is really only meant for demonstration purposes. If set false, teleop just controls
 # the mobile platform
-export RUN_FULL_SYSTEM_TELEOP=true
+export RUN_FULL_SYSTEM_TELEOP=false
+export IS_BASE_CTRL_ONLY=true
 
 # Joystick configurations for joystick set MOVO_JOY_IS_ATTACHED if the joystick
 # is physically attached to this PC

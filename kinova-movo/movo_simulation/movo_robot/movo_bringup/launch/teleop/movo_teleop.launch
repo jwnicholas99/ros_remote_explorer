@@ -8,6 +8,7 @@
                  env-loader="/home/movo/env.sh" default="true" unless="$(arg local)"/>
                  
     <arg name="sim" default="false"/>
+    <arg name="is_base_ctrl_only" default="false"/>
     <arg name="sim_teleop_vel_limit_mps" default="0.5"/>
     <arg name="sim_teleop_yaw_rate_limit_rps" default="0.5"/>
     <arg name="sim_teleop_accel_lim" default="0.5"/>
@@ -15,6 +16,7 @@
     
     <node pkg="movo_ros" type="movo_teleop" name="movo_teleop" output="screen" unless="$(optenv RUN_FULL_SYSTEM_TELEOP false)">
         <param name="sim" value="$(arg sim)"/>
+        <param name="is_base_ctrl_only" value="$(arg is_base_ctrl_only)"/>
         <param name="sim_teleop_vel_limit_mps" value="$(arg sim_teleop_vel_limit_mps)"/>
         <param name="sim_teleop_yaw_rate_limit_rps" value="$(arg sim_teleop_yaw_rate_limit_rps)"/>
         <param name="sim_teleop_accel_lim" value="$(arg sim_teleop_accel_lim)"/>
