@@ -24,3 +24,6 @@ https://github.com/ros-simulation/gazebo_ros_pkgs/issues/612
 catkin_make 
 roslaunch movo_gazebo movo.launch
 ```
+
+Notes on using gmapping and rosbag: take note that rosbags of Movo will /map->/odom, and gmapping will also publish another /map->/odom. This results in TF multiple authority
+contention. To fix this, just remap gmapping's /map to something else like /remapped. When using rviz, choose /remapped
