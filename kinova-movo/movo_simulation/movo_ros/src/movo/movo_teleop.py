@@ -68,8 +68,8 @@ NUMBER_OF_AXIS_INPUTS = 3
 
 class MovoTeleop:
     def __init__(self):
+         
         self.is_sim = rospy.get_param('~sim',False)
-        self.is_base_ctrl_only = rospy.get_param('~is_base_ctrl_only',False)
         
         if (False == self.is_sim):
         
@@ -94,18 +94,18 @@ class MovoTeleop:
             self.accel_lim = rospy.get_param('~sim_teleop_accel_lim',0.5)
             self.yaw_accel_lim = rospy.get_param('~sim_teleop_yaw_accel_lim',1.0)           
         
-        self.ctrl_map = dict({'momentary':[[{'is_button':True,'index':4,'set_val':1}],
-                                           [{'is_button':True,'index':8,'set_val':1}],
-                                           [{'is_button':True,'index':2,'set_val':1}],
-                                           [{'is_button':True,'index':3,'set_val':1}],
-                                           [{'is_button':True,'index':5,'set_val':1}],
-                                           [{'is_button':True,'index':10,'set_val':1}],
-                                           [{'is_button':True,'index':11,'set_val':1}],
-                                           [{'is_button':True,'index':0,'set_val':1}],
-                                           [{'is_button':True,'index':1,'set_val':1}]],
-                              'axis_range':[{'index':1,'invert_axis':False},
-                                            {'index':0,'invert_axis':False},
-                                            {'index':2,'invert_axis':False}]})
+        self.ctrl_map = dict({'momentary':[[{'is_button':true,'index':4,'set_val':1}],
+                                           [{'is_button':true,'index':8,'set_val':1}],
+                                           [{'is_button':true,'index':2,'set_val':1}],
+                                           [{'is_button':true,'index':3,'set_val':1}],
+                                           [{'is_button':true,'index':5,'set_val':1}],
+                                           [{'is_button':true,'index':10,'set_val':1}],
+                                           [{'is_button':true,'index':11,'set_val':1}],
+                                           [{'is_button':true,'index':0,'set_val':1}],
+                                           [{'is_button':true,'index':1,'set_val':1}]],
+                              'axis_range':[{'index':1,'invert_axis':false},
+                                            {'index':0,'invert_axis':false},
+                                            {'index':2,'invert_axis':false}]})
         
         """
         Initialize the debounce logic states
@@ -140,6 +140,7 @@ class MovoTeleop:
         self.config_updated = True
         
     def _parse_joy_input(self,joyMessage):
+        
 
         raw_button_states = [True] * NUMBER_OF_MOMENTARY_INPUTS
         self.button_state = [False] * NUMBER_OF_MOMENTARY_INPUTS
@@ -148,14 +149,12 @@ class MovoTeleop:
             inputs_for_req = self.ctrl_map['momentary'][i]
             for item in inputs_for_req:
                 if item['is_button']:
-                    if len(joyMessage.buttons) > item['index'] and item['set_val'] == joyMessage.buttons[item['index']]:
+                    if item['set_val'] == joyMessage.buttons[item['index']]:
                         raw_button_states[i] &= True
                     else:
                         raw_button_states[i] = False
                 else:
-                    temp = 0.0
-                    if len(joyMessage.axes) > item['index']:
-                        temp = joyMessage.axes[item['index']]
+                    temp = joyMessage.axes[item['index']]
                     if (item['invert_axis']):
                         temp *= -1.0
                     if (temp >= item['set_thresh']):
@@ -176,9 +175,7 @@ class MovoTeleop:
         self.axis_value = [0.0] * NUMBER_OF_AXIS_INPUTS
         for i in range(NUMBER_OF_AXIS_INPUTS):
             axis_input_map = self.ctrl_map['axis_range'][i]
-            temp = 0.0
-            if len(joyMessage.axes) > axis_input_map['index']:
-                temp = joyMessage.axes[axis_input_map['index']]
+            temp = joyMessage.axes[axis_input_map['index']]
             if (axis_input_map['invert_axis']):
                 temp *= -1.0
             self.axis_value[i] = temp
@@ -221,28 +218,22 @@ class MovoTeleop:
             self.cfg_cmd.header.seq
             self.send_cmd_none = False
         elif (False == self.send_cmd_none):
-            if self.is_base_ctrl_only:
+            if self.button_state[MAP_DEADMAN_IDX]:
                 self.motion_cmd.linear.x =  (self.axis_value[MAP_TWIST_LIN_X_IDX] * self.x_vel_limit_mps)
                 self.motion_cmd.linear.y =  (self.axis_value[MAP_TWIST_LIN_Y_IDX] * self.y_vel_limit_mps)
                 self.motion_cmd.angular.z = (self.axis_value[MAP_TWIST_ANG_Z_IDX] * self.yaw_rate_limit_rps)
                 self.last_motion_command_time = rospy.get_time()
+              
             else:
-                if self.button_state[MAP_DEADMAN_IDX]:
-                    self.motion_cmd.linear.x =  (self.axis_value[MAP_TWIST_LIN_X_IDX] * self.x_vel_limit_mps)
-                    self.motion_cmd.linear.y =  (self.axis_value[MAP_TWIST_LIN_Y_IDX] * self.y_vel_limit_mps)
-                    self.motion_cmd.angular.z = (self.axis_value[MAP_TWIST_ANG_Z_IDX] * self.yaw_rate_limit_rps)
-                    self.last_motion_command_time = rospy.get_time()
-                
-                else:
-                    self.motion_cmd.linear.x = 0.0
-                    self.motion_cmd.linear.y = 0.0
-                    self.motion_cmd.angular.z = 0.0
+                self.motion_cmd.linear.x = 0.0
+                self.motion_cmd.linear.y = 0.0
+                self.motion_cmd.angular.z = 0.0
 
             dt = rospy.get_time() - self.last_joy
             self.last_joy = rospy.get_time()
             
             if (dt >= 0.01):
-                
+
                 self.limited_cmd.linear.x = slew_limit(self.motion_cmd.linear.x,
                                                        self.limited_cmd.linear.x,
                                                        self.accel_lim, dt)
@@ -254,6 +245,7 @@ class MovoTeleop:
                                                        self.yaw_accel_lim, dt)
 
                 if ((rospy.get_time() - self.last_motion_command_time) < 2.0):
+     
                     
                     self.motion_pub.publish(self.limited_cmd)
                     
