@@ -4,7 +4,7 @@
 		<param name="port" value="9090"/>
 	</include>
 
-	<include file="$(find movo_gazebo)/launch/movo.launch">
+	<include file="$(find movo_gazebo)/launch/movo_vr.launch">
 	</include>
 
 	<node name="file_server" pkg="file_server" type="file_server" output="screen"/>

@@ -1,5 +1,0 @@
-gazebo_ros_control:
-    pid_gains:
-        linear_joint: {p: 100.0, i: 0.01, d: 10.0}
-        pan_joint: {p: 100.0, i: 0.01, d: 10.0}
-        tilt_joint: {p: 100.0, i: 0.01, d: 10.0}

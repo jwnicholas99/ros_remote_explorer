@@ -8,10 +8,10 @@
     <arg name="y"   default="0.0"/>
     <arg name="z"   default="0.0"/>
 
-    <rosparam file="$(find movo_gazebo)/controller/gazebo_ros_control.yaml" command="load"/>
-
 	<!-- send robot urdf to param server -->
 	<include file="$(find movo_description)/launch/movo_upload.launch"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/gazebo_ros_control_gains.yaml" command="load"/>
+    <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/gazebo_ros_control_gains_7dof.yaml" command="load"/>
 
 	<!-- Robot state publisher -->
 	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -24,32 +24,37 @@
         <arg name="world_name" value="$(arg world)"/>
         <arg name="paused" value="$(arg paused)"/>
         <arg name="gui" value="$(arg gui)"/>
+        <arg name="verbose" value="true" />
     </include>
 
     <!-- push robot_description to factory and spawn robot in gazebo -->
-    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /robot_description -model movo -x $(arg x) -y $(arg y) -z $(arg z)" respawn="false" output="screen" />
-
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+    args="-urdf -param /robot_description -model movo -x $(arg x) -y $(arg y) -z $(arg z)" 
+    respawn="false" output="screen" />
+        
     <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/right_arm_controller.yaml" command="load"/>
     <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/right_arm_7dof_controller.yaml" command="load"/>
-    
-    <rosparam file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
-    
+
     <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_6DOF false)" file="$(find movo_gazebo)/controller/left_arm_controller.yaml" command="load"/>
     <rosparam if="$(optenv MOVO_HAS_KINOVA_ARM_7DOF false)" file="$(find movo_gazebo)/controller/left_arm_7dof_controller.yaml" command="load"/>
-    
+
+    <rosparam file="$(find movo_gazebo)/controller/right_gripper_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/left_gripper_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/head_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/torso_controller.yaml" command="load"/>
     <rosparam file="$(find movo_gazebo)/controller/joint_state_controller.yaml" command="load"/>
     <node name="default_controller_spawner" pkg="controller_manager"
           type="controller_manager" args="spawn
+                               movo/right_arm_controller 
+                               movo/right_gripper_controller
+                               movo/left_arm_controller 
+                               movo/left_gripper_controller
                                movo/torso_controller
                                movo/head_controller
                                joint_state_controller"/>
 
     <include file="$(find movo_bringup)/launch/teleop/movo_teleop.launch">
         <arg name="sim" value="true"/>
-        <arg name="is_base_ctrl_only" value="($optenv IS_BASE_CTRL_ONLY)"/>
     </include>
     
     <node pkg="movo_gazebo" name="sim_odometry" type="sim_odometry" output="screen"/>
@@ -76,10 +81,15 @@
             <rosparam>
                 success_angle_threshold: 0.01
                 pan_link: pan_link
-                default_pointing_frame: kinect2_link
+                default_pointing_frame: movo_camera_link
             </rosparam>
         </node>
-    </group>
+    </group> 
+
+    <!-- With effort_controllers as hardware_interfaces, we have to manually set the position to 0
+    for each joint in Gazebo if we don't want to start MoveIt! with collisions and have the robot stuck -->
+    <!-- That is why the simulation is started as paused and is unpaused only in this script -->
+    <node pkg="movo_gazebo" type="set_joint_positions_to_zero.bash" name="set_joint_positions_to_zero" output="screen"/>
     
 
 
