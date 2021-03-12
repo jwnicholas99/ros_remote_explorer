@@ -27,3 +27,9 @@ roslaunch movo_gazebo movo.launch
 
 Notes on using gmapping and rosbag: take note that rosbags of Movo will /map->/odom, and gmapping will also publish another /map->/odom. This results in TF multiple authority
 contention. To fix this, just remap gmapping's /map to something else like /remapped. When using rviz, choose /remapped
+
+
+For SLAM, use RTAB-map:
+    - Take a look at the demos - http://wiki.ros.org/rtabmap_ros#Robot_mapping
+    - Subscribe to /rtabmap/cloud_map and the grid_map
+    - Find a way to render efficiently in Unity
