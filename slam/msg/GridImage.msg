@@ -1,0 +1,2 @@
+nav_msgs/MapMetaData info
+sensor_msgs/CompressedImage image
