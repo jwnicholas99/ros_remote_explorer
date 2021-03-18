@@ -3,17 +3,17 @@
 import rospy
 from sensor_msgs.msg import PointCloud2
 
-class PointCloudDiff:
+class PointCloudUpdateNode:
     def __init__(self):
-        rospy.init_node("pointcloud_diff")
-        rospy.Subscriber("/rtabmap/cloud_map", PointCloud2, self._publishPointcloudDiff)
-        self.pointcloudDiffPub = rospy.Publisher('/pointcloud_diff', PointCloud2, queue_size=10)
+        rospy.init_node("pointcloud_update")
+        rospy.Subscriber("/rtabmap/cloud_map", PointCloud2, self._publishPointCloudUpdate)
+        self.pointCloudUpdatePub = rospy.Publisher('/pointcloud_update', PointCloud2, queue_size=10)
         self.cur_size = 0
         self.points_set = set()
         self.point_step = 0
         rospy.spin()
     
-    def _publishPointcloudDiff(self, msg):
+    def _publishPointCloudUpdate(self, msg):
         new_msg = PointCloud2()
 
         new_msg.header = msg.header
@@ -26,7 +26,6 @@ class PointCloudDiff:
         new_msg.is_dense = msg.is_dense
         
         point_tuples = self._convertDataToTuples(msg.data)
-        #print(point_tuples)
         if self.cur_size == 0:
             new_msg.data = msg.data
             self.points_set.update(point_tuples)
@@ -44,7 +43,7 @@ class PointCloudDiff:
             new_msg.data = diff_data
 
         self.cur_size = len(msg.data)
-        self.pointcloudDiffPub.publish(new_msg)
+        self.pointCloudUpdatePub.publish(new_msg)
 
     def _convertDataToTuples(self, data):
         tuples = []
@@ -54,4 +53,4 @@ class PointCloudDiff:
 
 
 if __name__ == "__main__":
-    node = PointCloudDiff()
+    node = PointCloudUpdateNode()
