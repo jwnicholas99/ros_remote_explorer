@@ -73,13 +73,13 @@ class GridImageNode {
 
             std::vector<int> params;
             params.resize(9,0);
-            params[0] = IMWRITE_JPEG_QUALITY;
+            params[0] = 1; //IMWRITE_JPEG_QUALITY
             params[1] = 80;
-            params[2] = IMWRITE_JPEG_PROGRESSIVE;
+            params[2] = 2; //IMWRITE_JPEG_PROGRESSIVE
             params[3] = 0;
-            params[4] = IMWRITE_JPEG_OPTIMIZE;
+            params[4] = 3; //IMWRITE_JPEG_OPTIMIZE
             params[5] = 0;
-            params[6] = IMWRITE_JPEG_RST_INTERVAL;
+            params[6] = 4; //IMWRITE_JPEG_RST_INTERVAL
             params[7] = 0;
 
             int bitDepth = enc::bitDepth(compressed_msg.format);
