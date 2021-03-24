@@ -8,7 +8,7 @@ class TFMinimal:
         rospy.init_node("tf_minimal")
         rospy.Subscriber("/tf", TFMessage, self._publishMinimalTf)
         self.tfMinimalPub = rospy.Publisher('/tf_minimal', TFMessage, queue_size=10)
-        self.baseName = rospy.get_param("baseName", "/base_footprint")
+        self.baseName = rospy.get_param("baseName", "base_link")
         self.odomName = rospy.get_param("odomName", "odom")
         rospy.spin()
     
@@ -18,6 +18,7 @@ class TFMinimal:
         for transform in transforms:
             if transform.child_frame_id == self.baseName or transform.child_frame_id == self.odomName:
                 self.tfMinimalPub.publish(tfMessage)
+                print(tfMessage)
                 return
 
 if __name__ == "__main__":
